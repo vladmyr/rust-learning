@@ -1,0 +1,6 @@
+[package]
+name = "enums"
+version = "0.1.0"
+authors = ["Volodymyr Khytskyi <khytsky.vladimir@gmail.com>"]
+
+[dependencies]
