@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+// Exercise #1
 struct VecProps {
     mean: f64,
     median: f64,
@@ -66,6 +67,48 @@ fn calc_props(v: &Vec<i32>) -> VecProps {
         mean,
         mode
     }
+}
+
+// Exercise #2
+// since characters are stored in UTF-8 byte length of each is variadic, hence
+// the task can be narrowed down to finding an index in byte sequece that 
+// contais byte subsequence
+const CONSONANT_LIST: [char; 21] = [
+    'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'x', 'z', 'w', 'y'
+];
+
+fn calc_is_present(seq: &Vec<u8>, subseq: &Vec<u8>) -> bool {
+    let mut is_present = false;
+
+    let (seq_head, seq_tail) = seq.split_at(1);
+    let (subseq_head, subseq_tail) = subseq.split_at(1);
+
+    if seq_head == subseq_head {
+        is_present = match subseq_tail.len() {
+            0 => true,
+            _ => calc_is_present(&Vec::from(seq_tail), &Vec::from(subseq_tail))
+        }
+    }
+
+    is_present
+}
+
+// fn find_sequence(sequence: &Vec<u8>, subsequence: &Vec<Vec<u8>>) {
+
+// }
+
+fn pig_latin(input: &str) -> String {
+    let input = String::from(input);
+    let mut output = String::new();
+
+    for word in input.split_whitespace() {
+        for (i, chr) in word.chars().enumerate() {
+            println!("{}: {}", i, chr);
+            
+        }
+    }
+
+    output
 }
 
 fn main() {
@@ -170,4 +213,19 @@ fn main() {
     assert_eq!(vec_props.mean, 54.0);
     assert_eq!(vec_props.median, 56.0);
     assert_eq!(vec_props.mode, 56);
+
+    // 2. Convert strings to pig latin. The first consonant of each word is 
+    // moved to the end of the word and “ay” is added, so “first” becomes 
+    // “irst-fay.” Words that start with a vowel have “hay” added to the end 
+    // instead (“apple” becomes “apple-hay”). Keep in mind the details about 
+    // UTF-8 encoding!
+
+    let seq = vec![0, 5, 6, 7, 2, 3, 7, 7, 9, 0, 1];
+    let subseq = vec![3, 7, 7];
+
+    println!("{}", calc_is_present(&seq, &subseq));
+
+    // let first_apple = "first apple";
+
+    // pig_latin(&first_apple);
 }
