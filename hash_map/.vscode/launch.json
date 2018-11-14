@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug",
+      "name": "win-debug",
       "type": "cppvsdbg",
       "request": "launch",
       "preLaunchTask": "cargo build",
@@ -15,6 +15,15 @@
       "cwd": "${workspaceFolder}",
       "environment": [],
       "externalConsole": true
+    },
+    {
+      "name": "osx-debug",
+      "type": "lldb",
+      "request": "launch",
+      "preLaunchTask": "cargo build",
+      "program": "${workspaceRoot}/target/debug/${workspaceRootFolderName}",
+      "args": [],
+      "cwd": "${workspaceRoot}"
     }
   ]
 }

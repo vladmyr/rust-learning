@@ -80,15 +80,20 @@ const CONSONANT_LIST: [char; 21] = [
 fn calc_is_present(seq: &Vec<u8>, subseq: &Vec<u8>) -> bool {
     let mut is_present = false;
 
+    if seq.len() == 0 {
+        return is_present;
+    }
+
     let (seq_head, seq_tail) = seq.split_at(1);
     let (subseq_head, subseq_tail) = subseq.split_at(1);
 
-    if seq_head == subseq_head {
-        is_present = match subseq_tail.len() {
+    match seq_head == subseq_head {
+        false => is_present = calc_is_present(&Vec::from(seq_tail), &subseq),
+        true => is_present = match subseq_tail.len() {
             0 => true,
             _ => calc_is_present(&Vec::from(seq_tail), &Vec::from(subseq_tail))
-        }
-    }
+        },
+    };
 
     is_present
 }
