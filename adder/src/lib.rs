@@ -37,6 +37,15 @@ pub fn greeting(name: &str) -> String {
     String::from("Hello!")
 }
 
+pub fn prints_and_returns_10(a: i32) -> i32 {
+    println!("I got the value {}", a);
+    10
+}
+
+fn internal_adder(a: i32, b: i32) -> i32 {
+    a + b
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -44,11 +53,6 @@ mod tests {
     #[test]
     fn exploration() {
         assert_eq!(2 + 2, 4);
-    }
-
-    #[test]
-    fn another() {
-        panic!("Make this test fail!");
     }
 
     #[test]
@@ -74,6 +78,7 @@ mod tests {
 
     // custom failure message
     #[test]
+    #[ignore]
     fn greeting_contains_name() {
         let result = greeting("Carol");
         assert!(
@@ -90,10 +95,37 @@ mod tests {
 
     #[test]
     fn it_works() -> Result<(), String> {
-        if 2 + 2 != 4 {
+        if 2 + 2 == 4 {
             Ok(())
         } else {
             Err(String::from("two plus two does not equal four"))
         }
+    }
+
+    // showing function output
+    #[test]
+    fn this_test_will_pass() {
+        let value = prints_and_returns_10(4);
+        assert_eq!(value, 10);
+    }
+
+    #[test]
+    #[ignore]
+    fn this_test_will_fail() {
+        let value = prints_and_returns_10(5);
+        assert_eq!(value, 5);
+    }
+
+    // ignored test
+    #[test]
+    #[ignore]
+    fn another() {
+        panic!("Make this test fail!");
+    }
+
+    // testing private functions
+    #[test]
+    fn internal() {
+        assert_eq!(internal_adder(2, 2), 4);
     }
 }
