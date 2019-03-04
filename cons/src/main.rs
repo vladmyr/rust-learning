@@ -1,4 +1,5 @@
 use std::rc::Rc;
+use std::cell::RefCell;
 
 enum ListBox {
     Cons(i32, Box<ListBox>),
@@ -7,6 +8,12 @@ enum ListBox {
 
 enum ListRc {
     Cons(i32, Rc<ListRc>),
+    Nil
+}
+
+#[derive(Debug)]
+enum ListRcRefCell {
+    Cons(Rc<RefCell<i32>>, Rc<ListRcRefCell>),
     Nil
 }
 
@@ -43,4 +50,17 @@ fn main() {
     }
 
     println!("count after c goes out of scope = {}", Rc::strong_count(&a));
+
+    // example of having multiple owners of mutable data with ListRcRefCell
+    let value = Rc::new(RefCell::new(5));
+
+    let a = Rc::new(ListRcRefCell::Cons(Rc::clone(&value), Rc::new(ListRcRefCell::Nil)));
+    let b = ListRcRefCell::Cons(Rc::new(RefCell::new(6)), Rc::clone(&a));
+    let c = ListRcRefCell::Cons(Rc::new(RefCell::new(10)), Rc::clone(&a));
+
+    *value.borrow_mut() += 10;
+
+    println!("a after = {:?}", a);
+    println!("b after = {:?}", b);
+    println!("c after = {:?}", c);
 }
