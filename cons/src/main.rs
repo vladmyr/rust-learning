@@ -17,6 +17,21 @@ enum ListRcRefCell {
     Nil
 }
 
+#[derive(Debug)]
+enum ListRefCellRc {
+    Cons(i32, RefCell<Rc<ListRefCellRc>>),
+    Nil,
+}
+
+impl ListRefCellRc {
+    fn tail(&self) -> Option<&RefCell<Rc<ListRefCellRc>>> {
+        match self {
+            ListRefCellRc::Cons(_, item) => Some(item),
+            ListRefCellRc::Nil => None,
+        }
+    }
+}
+
 fn main() {
     let list = ListBox::Cons(1, 
         Box::new(ListBox::Cons(2, 
@@ -52,6 +67,7 @@ fn main() {
     println!("count after c goes out of scope = {}", Rc::strong_count(&a));
 
     // example of having multiple owners of mutable data with ListRcRefCell
+    println!("*** Multiple owners of mutable data");
     let value = Rc::new(RefCell::new(5));
 
     let a = Rc::new(ListRcRefCell::Cons(Rc::clone(&value), Rc::new(ListRcRefCell::Nil)));
@@ -63,4 +79,27 @@ fn main() {
     println!("a after = {:?}", a);
     println!("b after = {:?}", b);
     println!("c after = {:?}", c);
+
+    // reference cycle
+    println!("*** Reference cycle");
+    let a = Rc::new(ListRefCellRc::Cons(5, RefCell::new(Rc::new(ListRefCellRc::Nil))));
+
+    println!("a initial rc count = {}", Rc::strong_count(&a));
+    println!("a next item = {:?}", a.tail());
+
+    let b = Rc::new(ListRefCellRc::Cons(10, RefCell::new(Rc::clone(&a))));
+
+    println!("a rc count after b creation = {}", Rc::strong_count(&a));
+    println!("b initial rc count = {}", Rc::strong_count(&b));
+    println!("b next item = {:?}", b.tail());
+
+    if let Some(link) = a.tail() {
+        *link.borrow_mut() = Rc::clone(&b);
+    }
+
+    println!("b rc count after changing a = {}", Rc::strong_count(&b));
+    println!("a rc count after changing a = {}", Rc::strong_count(&a));
+
+    // ERROR: stack overflow
+    // println!("a next item = {:?}", a.tail());
 }
