@@ -1,8 +1,24 @@
+/**
+ * Further development ideas:
+ * Add more documentation to ThreadPool and its public methods.
+ * Add tests of the library’s functionality.
+ * Change calls to unwrap to more robust error handling.
+ * Use ThreadPool to perform some task other than serving web requests.
+ * Find a thread pool crate on https://crates.io/ and implement a similar web server using the crate instead. Then compare its API and robustness to the thread pool we implemented.
+ */
+
 use std::thread;
 
 use std::sync::mpsc;
 use std::sync::Arc;
 use std::sync::Mutex;
+
+type Job = Box<FnBox + Send + 'static>;
+
+enum Message {
+  NewJob(Job),
+  Terminate,
+}
 
 trait FnBox {
   fn call_box(self: Box<Self>);
@@ -14,35 +30,40 @@ impl<F: FnOnce()> FnBox for F {
   }
 }
 
-type Job = Box<FnBox + Send + 'static>;
-
 struct Worker {
   id: usize,
-  thread: thread::JoinHandle<()>,
+  thread: Option<thread::JoinHandle<()>>,
 }
 
 impl Worker {
-  fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
+  fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Message>>>) -> Worker {
     let thread = thread::spawn(move || {
       loop {
-        let job = receiver.lock().unwrap().recv().unwrap();
+        let message = receiver.lock().unwrap().recv().unwrap();
 
-        println!("Worker {} got a job, executing.", id);
-
-        job.call_box();
+        match message {
+          Message::NewJob(job) => {
+            println!("Worker {} got a job, executing.", id);
+            job.call_box();
+          },
+          Message::Terminate => {
+            println!("Worker {} was told to terminate", id);
+            break;
+          },
+        }
       }
     });
 
     Worker {
       id,
-      thread,
+      thread: Some(thread),
     }
   }
 }
 
 pub struct ThreadPool {
   workers: Vec<Worker>,
-  sender: mpsc::Sender<Job>,
+  sender: mpsc::Sender<Message>,
 }
 
 impl ThreadPool {
@@ -77,6 +98,32 @@ impl ThreadPool {
     where F: FnOnce() + Send + 'static
   {
     let job = Box::new(f);
-    self.sender.send(job).unwrap();
+    self.sender.send(Message::NewJob(job)).unwrap();
+  }
+}
+
+impl Drop for ThreadPool {
+  fn drop(&mut self) {
+    // We’re iterating over the workers twice: once to send one Terminate 
+    // message for each worker and once to call join on each worker’s thread. 
+    // If we tried to send a message and join immediately in the same loop, we 
+    // couldn’t guarantee that the worker in the current iteration would be the 
+    // one to get the message from the channel.
+
+    println!("Sending terminate message to all workers.");
+
+    for _ in &mut self.workers {
+      self.sender.send(Message::Terminate).unwrap();
+    }
+
+    println!("Shutting down all workers.");
+
+    for worker in &mut self.workers {
+      println!("Shutting down worker {}", worker.id);
+
+      if let Some(thread) = worker.thread.take() {
+        thread.join().unwrap();
+      }
+    }
   }
 }
