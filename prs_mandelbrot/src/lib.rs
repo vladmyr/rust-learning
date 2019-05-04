@@ -46,7 +46,7 @@ fn escape_time(c: Complex<f64>, limit: u32) -> Option<u32> {
 /// 
 /// If `s` has the proper form, return `Some<(x, y)>`. If it doesn't parse 
 /// correctly, return `None`
-fn parse_pair<T: FromStr>(s: &str, separator: char) -> Option<(T, T)> {
+pub fn parse_pair<T: FromStr>(s: &str, separator: char) -> Option<(T, T)> {
   match s.find(separator) {
     None => None,
     Some(index) => {
@@ -60,7 +60,7 @@ fn parse_pair<T: FromStr>(s: &str, separator: char) -> Option<(T, T)> {
 
 /// Parse a pair of floating-point numbers separated by a comma as a complex 
 /// number.
-fn parse_complex(s: &str) -> Option<Complex<f64>> {
+pub fn parse_complex(s: &str) -> Option<Complex<f64>> {
   match parse_pair(s, ',') {
     Some((re, im)) => Some(Complex { re, im }),
     None => None
@@ -74,7 +74,7 @@ fn parse_complex(s: &str) -> Option<Complex<f64>> {
 /// `pixel` is a (column, row) pair indicating a particular pixel in that image.
 /// The `upper_left` and `lower_right` parameters are points on the complex
 /// plane designating the area our image covers.
-fn pixel_to_point(
+pub fn pixel_to_point(
   bounds: (usize, usize), 
   pixel: (usize, usize),
   upper_left: Complex<f64>,
@@ -99,7 +99,7 @@ fn pixel_to_point(
 /// which holds one grayscale pixel per byte. The `upper_left` and `lower_right`
 /// arguments specify points on the complex plane corresponding to the 
 /// upper-left and lower-right corners of the pixel buffer.
-fn render(
+pub fn render(
   pixels: &mut [u8],
   bounds: (usize, usize),
   upper_left: Complex<f64>,
@@ -121,7 +121,7 @@ fn render(
 
 /// Write the buffer `pixels`, whose dimentions are given by `bounds`, to the
 /// file named `filename`.
-fn write_image(filename: &str, pixels: &[u8], bounds: (usize, usize)) 
+pub fn write_image(filename: &str, pixels: &[u8], bounds: (usize, usize)) 
   -> Result<(), std::io::Error>
 {
   // let output = match File::create(filename) {
