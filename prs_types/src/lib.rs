@@ -70,4 +70,37 @@ mod tests {
     chaos.sort();
     assert_eq!(chaos, [1, 2, 3, 4, 5]);
   }
+
+  // Vectors
+  #[test]
+  fn vector_demo() {
+    // demo #1 - dynamic resize
+    let mut v = Vec::with_capacity(2);
+    assert_eq!(v.len(), 0);
+    assert_eq!(v.capacity(), 2);
+
+    v.push(1);
+    v.push(2);
+    assert_eq!(v.len(), 2);
+    assert_eq!(v.capacity(), 2);
+
+    v.push(3);
+    assert_eq!(v.len(), 3);
+    assert_eq!(v.capacity(), 4);
+
+    // demo #2
+    let mut v = vec![10, 20, 30, 40, 50];
+
+    v.insert(3, 35);
+    assert_eq!(v, vec![10, 20, 30, 35, 40, 50]);
+
+    v.remove(1);
+    assert_eq!(v, vec![10, 30, 35, 40, 50]);
+
+    // demo #3
+    let mut v = vec!["carmen", "miranda"];
+    assert_eq!(v.pop(), Some("miranda"));
+    assert_eq!(v.pop(), Some("carmen"));
+    assert_eq!(v.pop(), None);
+  }
 }
