@@ -103,4 +103,62 @@ mod tests {
     assert_eq!(v.pop(), Some("carmen"));
     assert_eq!(v.pop(), None);
   }
+
+  // Slices
+  #[test]
+  fn slice_demo() {
+    let v: Vec<f64> = vec![0.0, 0.707, 1.0, 0.707];
+    let a: [f64; 4] = [0.0, 0.707, 1.0, 0.707];
+
+    let sv: &[f64] = &v;
+    let sa: &[f64] = &a;
+
+    assert_eq!(*sv, *sa);
+  }
+
+  // Strings are sequences of Unicode characters, stored using UTF-8 encoding
+  #[test]
+  fn string_demo() {
+    // demo #1
+    let _single_line = "It was a bright, cold day in April, and \
+      there were four of us-\
+      more of less.";
+
+    // raw strings
+    let _default_win_install_path = r"C:\Program Files\Gorillas";
+
+    // byte strings - slices of u8 values & cannot contain arbitrary Unicode
+    // chars
+    let method: &[u8; 3] = b"GET";
+
+    assert_eq!(method, &[b'G', b'E', b'T']);
+
+    let noodles: String = "noodles".to_string(); 
+    let oodles: &str = &noodles[1..];
+    let poodles = "ಠ_ಠ";  // "ಠ" char takes 3 bytes to encode, "_" - 1 byte
+
+    assert_eq!(noodles.len(), 7);
+    assert_eq!(oodles.len(), 6);
+
+    assert_eq!(poodles.len(), 7);
+    assert_eq!(poodles.chars().count(), 3);
+
+    // demo #2
+    let bits = vec!["veni", "vidi", "vici"];
+    assert_eq!(bits.concat(), "venividivici");
+    assert_eq!(bits.join(", "), "veni, vidi, vici");
+
+    // demo #3
+    // ==, != operators
+    assert!("ONE".to_lowercase() == "one");
+
+    // methods
+    assert!("peanut".contains("nut"));
+    assert_eq!("ಠ_ಠ".replace("ಠ", "■"), "■_■");
+    assert_eq!("  clean\n".trim(), "clean");
+
+    for word in "veni, vidi, vici".split(", ") {
+      assert!(word.starts_with("v"));
+    }
+  }
 }
