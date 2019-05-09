@@ -1,6 +1,22 @@
+use std::rc::Rc;
+
 struct Person2 {
   name: Option<String>,
   birth: i32,
+}
+
+// if all fields of a struct are themselves implement "Copy" trait, then
+// struct itself can derive from "Copy" trait
+#[derive(Copy, Clone)]
+struct Label {
+  number: u32
+}
+
+// String type does not have "Copy" trait, therefore StringLabel cannot be
+// derived form it
+// #[derive(Copy, Clone)]
+struct StringLabel {
+  name: String
 }
 
 #[cfg(test)]
@@ -49,5 +65,17 @@ mod tests {
     assert_eq!(composers[0].name, None);
   }
 
-  
+  // Rc - reference count
+  #[test]
+  fn shared_ownership_demo() {
+    let s: Rc<String> = Rc::new("shirataki".to_string());
+    let t: Rc<String> = s.clone();  // clones reference address and increments a
+                                    // reference count, value itself is left 
+                                    // untouched
+    let u: Rc<String> = s.clone();
+
+    // type's methods can be used directly
+    assert!(s.contains("shira"));
+    assert_eq!(t.find("taki"), Some(5));
+  }
 }
