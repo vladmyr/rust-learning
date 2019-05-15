@@ -6,6 +6,10 @@ use prs_references::Point;
 
 use prs_references::factorial;
 
+use prs_references::S;
+
+use prs_references::extend;
+
 fn main() {
   // demo #1
   let mut table = Table::new();
@@ -71,7 +75,64 @@ fn main() {
   // compare references themselves
   assert!(!std::ptr::eq(rx, ry));
 
-  // demo $5 - borrowing references to arbitrary expressions
+  // demo #5 - borrowing references to arbitrary expressions
   let r = &factorial(6);
   assert_eq!(r + &1009, 1729);  // &1009 lives only within this instruction
+
+  // demo #6 - lifetimes
+  let s;
+  let x = 10;
+
+  {
+    let y = 20;
+    
+    {
+      s = S { x: &x, y: &y };
+
+      assert_eq!(*s.x, 10);
+      assert_eq!(*s.y, 20);
+    }
+  }
+
+  // demo #7
+  let mut wave = Vec::new();
+  let head = vec![0.0, 1.0];
+  let tail = [0.0, -1.0];
+
+  extend(&mut wave, &head);
+  extend(&mut wave, &tail);
+
+  assert_eq!(wave, vec![0.0, 1.0, 0.0, -1.0]);
+
+  // Error: cannot borrow `wave` as immutable becaluse it is also borrowed as 
+  // mutable. In other words, we may borrow a mutable reference to the vector, 
+  // and we may borrow a shared reference ot its elements, but those two 
+  // references's lifetimes may not overlap
+  // extend(&mut wave, &wave);
+  // assert_eq!(wave, vec![0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0]);
+
+  // demo #7.1
+  let mut x = 10;
+  let r1 = &x;
+  let r2 = &x;        // OK: multiple shared borrows permitted
+  // x += 10;         // ERROR: cannot assign to `x` becaues it is borrowed
+  // let m = &mut x;  // ERROR: cannot borrow 'x' as mutable because it is also
+                      // borrowed as immutable
+
+  // demo #7.2
+  let mut v = (136, 139);
+  let m = &mut v;
+  let m0 = &mut m.0;  // OK: reborrowing mutable from mutable
+  *m0 = 137;
+  let r1 = &m.1;      // OK: reborrowing shared from mutable and doesn't overlap
+                      // with m0
+  // let r2 = &v.1;   // ERORR: cannot borrow as immutable because it is also
+                      // borrowed as mutable
+
+  // demo #8
+  let mut x = 42;     // nonconst i32 variable
+  let p = &x;         // shared reference to i32
+
+  assert_eq!(*p, 42);
+  // x += 1;          // ERROR: cannot assign to x becaues it is borrowed
 }

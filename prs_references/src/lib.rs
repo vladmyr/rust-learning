@@ -27,6 +27,37 @@ pub fn factorial (n: usize) -> usize {
   (1..n + 1).fold(1, |a, b| a * b)
 }
 
+pub struct S<'a, 'b> {
+  pub x: &'a i32,
+  pub y: &'b i32,
+}
+
+pub struct T<'a, 'b> {
+  pub s: S<'a, 'b>
+}
+
+pub struct StringTable {
+  elements: Vec<String>,
+}
+
+impl StringTable {
+  // fn find_by_prefix<'a, 'b>(&'a self, prefix: &'b str) -> Option<&'a String>
+  fn find_by_prefix(&self, prefix: &str) -> Option<&String> {
+    for i in 0..self.elements.len() {
+      if self.elements[i].starts_with(prefix) {
+        return Some(&self.elements[i]);
+      }
+    }
+    None
+  }
+}
+
+pub fn extend(vec: &mut Vec<f64>, slice: &[f64]) {
+  for elt in slice {
+    vec.push(*elt);
+  }
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -38,6 +69,4 @@ mod tests {
     assert_eq!(factorial(3), 6);
     assert_eq!(factorial(4), 24);
   }
-
-
 }
